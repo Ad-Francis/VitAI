@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">VitAI</string>
+    <string name="NF_enter_query">E.g. 1 small apple and 100g of rice</string>
+    <string name="submit_query">Submit</string>
+    <string name="clear_query">Clear</string>
+    <string name="results_placeholder">Results will appear here</string>
+    <!-- API Keys -->
+    <string name="edamam_app_id">4a280b81</string>
+    <string name="edamam_app_key">2c8e691ecb602a2181cb241a346cea45</string>
+</resources>
