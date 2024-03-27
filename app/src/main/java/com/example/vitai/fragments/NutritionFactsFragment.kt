@@ -20,7 +20,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vitai.R
@@ -48,7 +47,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
             // Initialize NutritionApiRepository
             nutritionApiRepository = NutritionApiRepository(requireContext())
-            ingredientsRecyclerView = view.findViewById<RecyclerView>(R.id.ingredientsRecyclerView)
             ingredientsRecyclerView.layoutManager = LinearLayoutManager(context)
             ingredientsRecyclerView.adapter = ParsedIngredientsAdapter(emptyList())
 
@@ -93,10 +91,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
                             displayNutritionFacts(nutritionInfo) // this is another function
                             setupPieChart(nutritionInfo)
                             displayIngredients(nutritionInfo)
-                            val dividerItemDecorationV = DividerItemDecoration(ingredientsRecyclerView.context, DividerItemDecoration.VERTICAL)
-                            val dividerItemDecorationH = DividerItemDecoration(ingredientsRecyclerView.context, DividerItemDecoration.HORIZONTAL)
-                            ingredientsRecyclerView.addItemDecoration(dividerItemDecorationV)
-                            ingredientsRecyclerView.addItemDecoration(dividerItemDecorationH)
                         } else {
                             Toast.makeText(context, "No data received", Toast.LENGTH_LONG).show()
                         }
