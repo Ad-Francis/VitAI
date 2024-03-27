@@ -1,10 +1,14 @@
     package com.example.vitai.fragments
 
 import ParsedIngredientsAdapter
+import android.app.Activity.RESULT_OK
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -14,8 +18,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.animation.LayoutAnimationController
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -36,6 +42,7 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import java.util.Locale
 
     class NutritionFactsFragment : Fragment() {
 
@@ -43,6 +50,10 @@ import com.github.mikephil.charting.utils.ColorTemplate
         private lateinit var tableLayoutNutritionFacts: TableLayout
         private lateinit var nutritionApiRepository: NutritionApiRepository
         private lateinit var ingredientsRecyclerView: RecyclerView
+
+        companion object {
+            private const val SPEECH_REQUEST_CODE = 0
+        }
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
             val view = inflater.inflate(R.layout.fragment_nutrition_facts, container, false)
@@ -86,9 +97,15 @@ import com.github.mikephil.charting.utils.ColorTemplate
             tableLayoutNutritionFacts.paddingBottom // Keep existing bottom padding
             )
 
+            val micButton: ImageButton = view.findViewById(R.id.micButton)
+            micButton.setOnClickListener {
+                startSpeechToText()
+            }
+
             val submitQueryButton: Button = view.findViewById(R.id.submitQueryButton)
             submitQueryButton.setOnClickListener {
                 val query = queryEditText.text.toString()
+                view.hideKeyboard()
                 // Use the repository to fetch nutrition facts
                 nutritionApiRepository.searchNutritionalFacts(query, onSuccess = { nutritionInfo ->
                     // If successful, update UI. Ensure updates happen on the main thread.
@@ -110,6 +127,36 @@ import com.github.mikephil.charting.utils.ColorTemplate
             }
 
             return view
+        }
+
+        fun startSpeechToText() {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
+
+            try {
+                startActivityForResult(intent, SPEECH_REQUEST_CODE)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(context, "Speech to Text not supported", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+
+            if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
+                val results: ArrayList<String> = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) ?: arrayListOf()
+                val spokenText: String? = results.getOrNull(0)
+                // Do something with the spoken text
+                queryEditText.setText(spokenText)
+            }
+        }
+
+        // Extension function to hide keyboard
+        fun View.hideKeyboard() {
+            val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
         }
 
         class CustomPercentFormatter(private val chart: PieChart) : ValueFormatter() {
