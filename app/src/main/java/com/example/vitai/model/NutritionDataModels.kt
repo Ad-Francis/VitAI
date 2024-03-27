@@ -20,11 +20,25 @@ data class TotalNutrientsKCal(
 )
 
 data class IngredientDetail(
-    val quantity: Int,
-    val unit: String,
+    val text: String,
+    val parsed: List<IngredientParsed>
+)
+
+data class IngredientParsed(
+    val quantity: Float,
+    val measure: String, // Directly a string here
+    val foodMatch: String,
     val food: String,
-    val calories: Float,
-    val weight: Float
+    val foodId: String,
+    val weight: Float,
+    val retainedWeight: Float,
+    val nutrients: Map<String, NutrientDetail>
+)
+
+data class NutrientDetail(
+    val label: String,
+    val quantity: Float,
+    val unit: String
 )
 
 data class KCalData(
