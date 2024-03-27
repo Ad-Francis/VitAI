@@ -20,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vitai.R
@@ -47,7 +48,6 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
             // Initialize NutritionApiRepository
             nutritionApiRepository = NutritionApiRepository(requireContext())
-
             ingredientsRecyclerView = view.findViewById<RecyclerView>(R.id.ingredientsRecyclerView)
             ingredientsRecyclerView.layoutManager = LinearLayoutManager(context)
             ingredientsRecyclerView.adapter = ParsedIngredientsAdapter(emptyList())
@@ -93,6 +93,10 @@ import com.github.mikephil.charting.utils.ColorTemplate
                             displayNutritionFacts(nutritionInfo) // this is another function
                             setupPieChart(nutritionInfo)
                             displayIngredients(nutritionInfo)
+                            val dividerItemDecorationV = DividerItemDecoration(ingredientsRecyclerView.context, DividerItemDecoration.VERTICAL)
+                            val dividerItemDecorationH = DividerItemDecoration(ingredientsRecyclerView.context, DividerItemDecoration.HORIZONTAL)
+                            ingredientsRecyclerView.addItemDecoration(dividerItemDecorationV)
+                            ingredientsRecyclerView.addItemDecoration(dividerItemDecorationH)
                         } else {
                             Toast.makeText(context, "No data received", Toast.LENGTH_LONG).show()
                         }
@@ -169,11 +173,26 @@ import com.github.mikephil.charting.utils.ColorTemplate
             }
         }
 
-        private fun displayIngredients(nutritionResponse: NutritionResponse) {
-            val parsedIngredientsList = nutritionResponse.ingredients.flatMap { it.parsed }
-            (ingredientsRecyclerView.adapter as? ParsedIngredientsAdapter)?.updateIngredients(parsedIngredientsList)
-        }
+        private fun displayIngredients(nutritionResponse: NutritionResponse?) {
+            if (nutritionResponse == null) {
+                Toast.makeText(requireContext(), R.string.error_no_connection, Toast.LENGTH_LONG).apply {
+                    setGravity(Gravity.CENTER_HORIZONTAL or Gravity.TOP, 0, 200)
+                    show()
+                }
+                return
+            }
 
+            val parsedIngredientsList = nutritionResponse.ingredients.flatMap { it.parsed ?: listOf() }
+
+            if (parsedIngredientsList.isEmpty()) {
+                Toast.makeText(requireContext(), R.string.error_bad_query, Toast.LENGTH_LONG).apply {
+                    setGravity(Gravity.CENTER_HORIZONTAL and Gravity.TOP, 0, 20)
+                    show()
+                }
+            } else {
+                (ingredientsRecyclerView.adapter as? ParsedIngredientsAdapter)?.updateIngredients(parsedIngredientsList)
+            }
+        }
 
         // The rest of the code that uses resultsTextView should be removed or commented out.
         private fun displayNutritionFacts(nutritionInfo: NutritionResponse) {
@@ -187,7 +206,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
                 tableLayoutNutritionFacts.addView(helper.addSectionSpacing())
 
     // First, display calories as a special case since it's not in the totalNutrients
-                helper.addNutritionRow("Calories", Nutrient(nutritionInfo.calories.toFloat(), "kcal"), nutritionInfo.totalDaily.energy, true)
+                helper.addNutritionRow("Calories", Nutrient(nutritionInfo.calories.toFloat(), ""), nutritionInfo.totalDaily.energy, true)
 
     // Now, iterate through the rest of the nutrients
                 nutritionInfo.totalNutrients.apply {
@@ -285,7 +304,12 @@ import com.github.mikephil.charting.utils.ColorTemplate
             val nutrientText = StringBuilder().apply {
                 append(nutrientName)
                 nutrient?.let {
-                    append(": ${String.format("%.1f %s", it.quantity, it.unit)}")
+                    // Check if the nutrient is "Calories" and format as an integer if so
+                    if (nutrientName == "Calories") {
+                        append(": ${it.quantity.toInt()} ${it.unit}") // Convert quantity to Int for Calories
+                    } else {
+                        append(": ${String.format("%.1f %s", it.quantity, it.unit)}") // Keep as is for others
+                    }
                 }
             }.toString()
 
@@ -307,6 +331,10 @@ import com.github.mikephil.charting.utils.ColorTemplate
                 text = nutrientSpannable
                 textSize = 22f
                 gravity = Gravity.START
+                if (!isBold) {
+                    // Apply indentation for non-bold items
+                    setPadding(32, 0, 0, 0) // Adjust the left padding to create indentation
+                }
             }
 
             val rdvTextView = TextView(context).apply {
@@ -349,58 +377,5 @@ import com.github.mikephil.charting.utils.ColorTemplate
                 spacerView.layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 32) // 32px spacing
                 addView(spacerView)
             }
-        }
-    }
-    class IngredientsTableHelper(private val context: Context, private val tableLayout: TableLayout) {
-
-        fun addIngredientRow(quantity: String, unit: String, food: String, calories: String, weight: String) {
-            val row = TableRow(context).apply {
-                addView(createTextView(quantity, Typeface.NORMAL, Gravity.START, 1f))
-                addView(createTextView(unit, Typeface.NORMAL, Gravity.START, 1f))
-                addView(createTextView(food, Typeface.NORMAL, Gravity.START, 1f)) // Food name might need more space
-                addView(createTextView(calories, Typeface.NORMAL, Gravity.START, 1f))
-                addView(createTextView(weight, Typeface.NORMAL, Gravity.START, 1f))
-                setBackgroundResource(R.drawable.clear_bg) // Optional: Define a drawable for row background
-            }
-            tableLayout.addView(row, TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = 8 // Add spacing above each row
-                bottomMargin = 8 // Add spacing below each row
-            })
-        }
-
-        private fun createTextView(text: String, style: Int, gravity: Int, weight: Float): TextView {
-            return TextView(context).apply {
-                this.text = text
-                setTypeface(null, style)
-                this.gravity = gravity
-                textSize = 18f // Consider making this adjustable
-                layoutParams = TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, weight).apply {
-                    leftMargin = 8
-                    rightMargin = 8
-                }
-                this.setTextColor(ContextCompat.getColor(context, R.color.white))
-                setPadding(16, 16, 16, 16) // Add padding for better spacing within cells
-            }
-        }
-
-        fun addHeaderRow() {
-            val headerRow = TableRow(context).apply {
-                addView(createTextView("Qty", Typeface.BOLD, Gravity.CENTER, 1f))
-                addView(createTextView("Unit", Typeface.BOLD, Gravity.CENTER, 1f))
-                addView(createTextView("Food", Typeface.BOLD, Gravity.CENTER, 2f)) // Giving more space to the food column
-                addView(createTextView("Calories", Typeface.BOLD, Gravity.CENTER, 1f))
-                addView(createTextView("Weight", Typeface.BOLD, Gravity.CENTER, 1f))
-                setBackgroundResource(R.drawable.button_bg) // Use a distinct color or drawable for the header background
-            }
-            tableLayout.addView(headerRow, TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT).apply {
-                // Adjust margins if needed, similar to ingredient rows for consistency
-                topMargin = 8
-                bottomMargin = 8
-            })
-        }
-
-        // Optional method to clear the table
-        fun clearTable() {
-            tableLayout.removeAllViews()
         }
     }
