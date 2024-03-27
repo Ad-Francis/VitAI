@@ -47,6 +47,10 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
             // Initialize NutritionApiRepository
             nutritionApiRepository = NutritionApiRepository(requireContext())
+
+            // Add this line before setting the layoutManager and adapter
+            ingredientsRecyclerView = view.findViewById(R.id.ingredientsRecyclerView)
+
             ingredientsRecyclerView.layoutManager = LinearLayoutManager(context)
             ingredientsRecyclerView.adapter = ParsedIngredientsAdapter(emptyList())
 
