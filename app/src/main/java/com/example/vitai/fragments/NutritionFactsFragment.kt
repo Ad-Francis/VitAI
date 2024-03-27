@@ -12,6 +12,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.animation.LayoutAnimationController
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TableLayout
@@ -189,6 +191,11 @@ import com.github.mikephil.charting.utils.ColorTemplate
                 }
             } else {
                 (ingredientsRecyclerView.adapter as? ParsedIngredientsAdapter)?.updateIngredients(parsedIngredientsList)
+                // Find the RecyclerView
+                // Load the animation
+                val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_animation)
+                // Set the animation to the RecyclerView
+                ingredientsRecyclerView.layoutAnimation = LayoutAnimationController(animation)
             }
         }
 
