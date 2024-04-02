@@ -4,7 +4,7 @@
     <string name="submit_query">Submit</string>
     <string name="clear_query">Clear</string>
     <string name="error_no_connection">Unable to connect - please check internet connection</string>
-    <string name="error_bad_query">Check spelling, use \'AND\' for separation and specify ingredient quantities</string>
+    <string name="error_bad_query">Check spelling, use \'AND\' for separation and specify quantities</string>
     <string name="header_qty">Qty</string>
     <string name="header_unit">Measure</string>
     <string name="header_food">Food</string>
