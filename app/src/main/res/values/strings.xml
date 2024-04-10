@@ -12,7 +12,7 @@
     <string name="header_calories">Calories</string>
     <string name="mic_description">Activate speech to text</string>
 
-    <!-- NUtrition Analysis API Keys -->
+    <!-- Nutrition Analysis API Keys -->
     <string name="edamam_app_id">4a280b81</string>
     <string name="edamam_app_key">2c8e691ecb602a2181cb241a346cea45</string>
 </resources>

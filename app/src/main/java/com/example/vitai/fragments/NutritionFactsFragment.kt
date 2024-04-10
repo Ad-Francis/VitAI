@@ -229,19 +229,14 @@ import java.util.Locale
                 return
             }
 
-            val parsedIngredientsList = nutritionResponse.ingredients.flatMap { it.parsed ?: listOf() }
+            val parsedIngredientsList = nutritionResponse.ingredients?.flatMap { it.parsed ?: listOf() } ?: listOf()
 
             if (parsedIngredientsList.isEmpty()) {
-                Toast.makeText(requireContext(), R.string.error_bad_query, Toast.LENGTH_LONG).apply {
-                    setGravity(Gravity.CENTER_HORIZONTAL and Gravity.TOP, 0, 20)
-                    show()
-                }
+                // New toast message for this specific case
+                Toast.makeText(requireContext(), getString(R.string.error_bad_query), Toast.LENGTH_LONG).show()
             } else {
                 (ingredientsRecyclerView.adapter as? ParsedIngredientsAdapter)?.updateIngredients(parsedIngredientsList)
-                // Find the RecyclerView
-                // Load the animation
                 val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_in_animation)
-                // Set the animation to the RecyclerView
                 ingredientsRecyclerView.layoutAnimation = LayoutAnimationController(animation)
             }
         }
