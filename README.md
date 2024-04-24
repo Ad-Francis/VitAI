@@ -1,7 +1,7 @@
 # VitAI
-Nutrition data and analysis android app using natural language processing for seamless querying and user interaction
+Nutrition data and analysis android app using API with natural language processing for easy querying and user interaction
 
-VitAI, is an Android application that aims to provide users with detailed information about their food intake. The app is designed to assist users in understanding the nutritional content of their meals, analyze their dietary habits, and find recipes based on their dietary needs and preferences.
+VitAI aims to provide users with detailed information about their food intake and is designed to assist users in understanding the nutritional content of their meals, analyze their dietary habits, and find recipes based on their dietary needs and preferences.
 
 ## Features
 
@@ -11,7 +11,7 @@ VitAI, is an Android application that aims to provide users with detailed inform
 
 ## Getting Started
 
-To get started with VitAI, clone the repository to your local machine and open the project in Android Studio. Build the project and run it on an Android device or emulator.
+Clone the repository to your local machine and open the project in Android Studio. Build the project and run it on an Android device or emulator.
 
 ## Contributing
 
